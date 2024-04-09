@@ -5,11 +5,15 @@
 package UserFunctionalities;
 
 /**
- *
+ * @Liudmila Grati 
+ * Represents the roles that a user can have in the system.
+ * Three roles are defined: ADMIN, OFFICE, and LECTURER.
+ * Each role corresponds to different levels of access and privileges.
+ * 
  * @author user
  */
 public enum Role {
-    ADMIN,
-    OFFICE,
-    LECTURER
+    ADMIN,      // Represents an administrative user with full system access
+    OFFICE,     // Represents an office user with restricted access for administrative tasks
+    LECTURER    // Represents a lecturer user with access to course-related functionalities
 }
