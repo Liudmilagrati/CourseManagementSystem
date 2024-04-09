@@ -150,5 +150,31 @@ public ReportGenerator(DB_IO dbIO) {
 
         return studentInfo.toString();
     }
+// Method to generate the course the student is undertaking
+    public String getStudentCourse(String studentId) {
+        StringBuilder studentCourse = new StringBuilder();
 
+        try (Connection connection = dbIO.getConnection()) {
+            String courseQuery = "SELECT course_name FROM Courses WHERE course_id = " +
+                                  "(SELECT course_id FROM Modules WHERE module_id IN " +
+                                  "(SELECT module_id FROM Module_Enrollments WHERE student_id = ? LIMIT 1))";
+            try (PreparedStatement courseStatement = connection.prepareStatement(courseQuery)) {
+                courseStatement.setString(1, studentId);
+                try (ResultSet courseResult = courseStatement.executeQuery()) {
+                    if (courseResult.next()) {
+                        String courseName = courseResult.getString("course_name");
+                        studentCourse.append("Course: ").append(courseName);
+                    } else {
+                        studentCourse.append("No course found for the student with ID: ").append(studentId);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Handle SQL exceptions
+        }
+
+        return studentCourse.toString();
+    }
+
+    
 }
