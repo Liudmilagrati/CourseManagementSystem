@@ -29,6 +29,23 @@ public class User {
         this.username = username;
         this.role = role;
     }
+     /**
+     * Constructs a user with the given userID, username, role, lecturerId, and salt.
+     *
+     * @param userID     The unique identifier of the user.
+     * @param username   The username of the user.
+     * @param role       The role of the user.
+     * @param lecturerId The lecturer ID associated with the user.
+     * @param salt       The salt used for password hashing.
+     */
+    public User(String userID, String username, Role role, String lecturerId, String salt) {
+        this.userID = userID;
+        this.username = username;
+        this.role = role;
+        this.lecturerId = lecturerId;
+        this.salt = salt;
+    }
+
     
     
 }
