@@ -150,4 +150,39 @@ public class UserManagement {
         }
     }
     
+    /**
+     * Method that allows to update the password of a user in the database.
+     *
+     * @param userID       The ID of the user whose password to update.
+     * @param newPassword  The new password to set.
+     * @param newSalt      The new salt to use for hashing the password.
+     * @return True if the password was successfully updated, false otherwise.
+     */
+    public boolean updatePassword(String userID, String newPassword, String newSalt) {
+        // HashPassword the new password before storing it in the database
+        String hashedPassword = HashPassword.hashPassword(newPassword, newSalt, 1000);
+
+        // SQL query to update password in the database
+        String updatePasswordQuery = "UPDATE users SET password = ?, salt = ? WHERE user_id = ?";
+
+        try (Connection conn = dbIO.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(updatePasswordQuery)) {
+
+            // Set parameters for the prepared statement
+            stmt.setString(1, hashedPassword);
+            stmt.setString(2, newSalt);
+            stmt.setString(3, userID);
+
+            // Execute the update query
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            // Print the error code and return false in case of an exception
+            System.out.println("Error Code: " + e.getErrorCode());
+            return false;
+        }
+    }
+    
+    
 }
