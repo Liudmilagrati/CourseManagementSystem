@@ -23,3 +23,10 @@ public class MyDatabaseIO implements DB_IO {
     public MyDatabaseIO() {
         this("jdbc:mysql://localhost/cms", "pooa2024", "pooa2024");
     }
+    
+// Constructor with custom database connection details
+    public MyDatabaseIO(String url, String username, String password) {
+        this.url = url;
+        this.username = username;
+        this.password = password;
+    }
