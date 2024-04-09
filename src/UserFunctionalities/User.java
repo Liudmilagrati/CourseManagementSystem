@@ -6,8 +6,14 @@ package UserFunctionalities;
 
 /**
  *
- * @author user
+ * @Liudmila Grati 
  */
 public class User {
-    
+  // Intanciate Private Fields
+    private String username;
+    private String password;
+    private String userID;
+    private String lecturerId;
+    private Role role;
+    private String salt;  
 }
