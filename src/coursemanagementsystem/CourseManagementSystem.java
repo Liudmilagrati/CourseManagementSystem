@@ -4,9 +4,14 @@
  */
 package coursemanagementsystem;
 
+import DataBaseIntegration.MyDatabaseIO;
+import Reports.ReportGenerator;
+import userFunctionalites.Authentication;
+import userFunctionalites.UserManagement;
+
 /**
  *
- * @author user
+ * @Liudmila Grati 
  */
 public class CourseManagementSystem {
 
@@ -14,7 +19,21 @@ public class CourseManagementSystem {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
-    }
-    
+        
+        // Create an instance of MyDatabaseIO
+        MyDatabaseIO dbIO = new MyDatabaseIO();
+
+        
+    // Initialise user Functionalities 
+        Authentication authentication = new Authentication(dbIO);
+        UserManagement userService = new UserManagement(dbIO);
+        
+        // Initialise ReportGenerator
+        ReportGenerator reportGenerator = new ReportGenerator(dbIO);
+        
+       
+        cmsMenu menu = new cmsMenu(authentication,userService,reportGenerator);
+        menu.displayLoginMenu();
+        
+}
 }
