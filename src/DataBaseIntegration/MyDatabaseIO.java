@@ -30,3 +30,15 @@ public class MyDatabaseIO implements DB_IO {
         this.username = username;
         this.password = password;
     }
+    
+// Method to obtain a database connection
+    @Override
+    public Connection getConnection() throws SQLException {
+        // Establish a connection
+        Connection conn = DriverManager.getConnection(url, username, password);
+        // Print a console message indicating successful connection
+        System.out.println("Database connected successfully!");
+        // Return the connection
+        return conn;
+    }
+}
