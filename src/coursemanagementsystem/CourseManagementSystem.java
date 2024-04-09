@@ -10,6 +10,7 @@ import userFunctionalites.Authentication;
 import userFunctionalites.UserManagement;
 
 /**
+ * GitHub link: https://github.com/Liudmilagrati/CourseManagementSystem
  * Main class for the Course Management System.
  * @author Liudmila Grati
  */
