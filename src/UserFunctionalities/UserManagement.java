@@ -121,4 +121,33 @@ public class UserManagement {
         }
         return false;
     }
+    /**
+     * Method that allows to update the username of a user in the database.
+     *
+     * @param userID       The ID of the user whose username to update.
+     * @param newUsername  The new username to set.
+     * @return True if the username was successfully updated, false otherwise.
+     */
+    public boolean updateUsername(String userID, String newUsername) {
+        // SQL query to update username in the database
+        String updateUsernameQuery = "UPDATE users SET username = ? WHERE user_id = ?";
+
+        try (Connection conn = dbIO.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(updateUsernameQuery)) {
+
+            // Set parameters for the prepared statement
+            stmt.setString(1, newUsername);
+            stmt.setString(2, userID);
+
+            // Execute the update query
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            // Print the error code and return false in case of an exception
+            System.out.println("Error Code: " + e.getErrorCode());
+            return false;
+        }
+    }
+    
 }
