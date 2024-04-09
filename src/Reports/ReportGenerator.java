@@ -94,4 +94,61 @@ public ReportGenerator(DB_IO dbIO) {
         return 0; // Return 0 if no students are enrolled
     }
 
+     // Method to get the lecturer of a module
+    private String getLecturer(int lecturerId, Connection connection) throws SQLException {
+        String lecturerQuery = "SELECT lecturer_name FROM Lecturers WHERE lecturer_id = ?";
+        try (PreparedStatement lecturerStatement = connection.prepareStatement(lecturerQuery)) {
+            lecturerStatement.setInt(1, lecturerId);
+            try (ResultSet lecturerResult = lecturerStatement.executeQuery()) {
+                if (lecturerResult.next()) {
+                    return lecturerResult.getString("lecturer_name");
+                }
+            }
+        }
+        return "Unknown"; // Return "Unknown" if lecturer not found
+    }
+
+// Generate Student Report
+    
+    public String generateStudentReport(String studentId) {
+        StringBuilder report = new StringBuilder();
+        Connection conn = null;
+
+        try {
+            conn = dbIO.getConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "An error occurred while generating the student report.";
+        }
+        return null;
+    }
+    // Method to generate student name and student number
+    public String getStudentInfo(String studentId) {
+        StringBuilder studentInfo = new StringBuilder();
+
+        try (Connection connection = dbIO.getConnection()) {
+            String studentQuery = "SELECT student_name, student_surname, student_number FROM Students WHERE student_id = ?";
+            try (PreparedStatement studentStatement = connection.prepareStatement(studentQuery)) {
+                studentStatement.setString(1, studentId);
+                try (ResultSet studentResult = studentStatement.executeQuery()) {
+                    if (studentResult.next()) {
+                        String studentName = studentResult.getString("student_name");
+                        String studentSurname = studentResult.getString("student_surname");
+                        String studentNumber = studentResult.getString("student_number");
+
+                        studentInfo.append("Student Name: ").append(studentName).append("\n");
+                        studentInfo.append("Student Surname: ").append(studentSurname).append("\n");
+                        studentInfo.append("Student Number: ").append(studentNumber).append("\n");
+                    } else {
+                        studentInfo.append("No student found with ID: ").append(studentId).append("\n");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Handle SQL exceptions
+        }
+
+        return studentInfo.toString();
+    }
+
 }
