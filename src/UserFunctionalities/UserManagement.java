@@ -79,4 +79,32 @@ public class UserManagement {
         }
     }
     
+    /**
+     * Deletes a user from the database (including username, password and role) 
+     *
+     * @param username The username of the user to delete.
+     * @return True if the user was successfully deleted, false otherwise.
+     */
+    public boolean deleteUser(String username) {
+        // SQL query to delete user data from the database
+        String deleteUserQuery = "DELETE FROM users WHERE username = ?";
+
+        try (Connection conn = dbIO.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(deleteUserQuery)) {
+
+            // Set the username parameter in the prepared statement
+            stmt.setString(1, username);
+
+            // Execute the delete query
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            // Print the error code and return false in case of an exception
+            System.out.println("Error Code: " + e.getErrorCode());
+            return false;
+        }
+    }
+
+    
 }
