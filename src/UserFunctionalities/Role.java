@@ -8,6 +8,8 @@ package UserFunctionalities;
  *
  * @author user
  */
-public class Role {
-    
+public enum Role {
+    ADMIN,
+    OFFICE,
+    LECTURER
 }
