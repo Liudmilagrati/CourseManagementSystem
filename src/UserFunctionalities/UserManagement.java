@@ -4,6 +4,7 @@
  */
 package UserFunctionalities;
 
+import DataBaseIntegration.DB_IO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,36 +13,50 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
- * @author user
+ * Manages user-related functionalities such as adding, updating, and deleting users in the database.
+ * Provides methods for updating user information including username, password, and role.
+ * Also provides methods for checking user existence in the database.
+ * 
+ * @Liudmila Grati 
  */
 public class UserManagement {
-    private DB_IO dbIO;
-     private List<User> users;
+    private DB_IO dbIO; // Database I/O object for interacting with the database
+    private List<User> users; // List to store User objects
      
-     public UserManagement() {
+    /**
+     * Constructs a UserManagement object with an initial admin user.
+     * This constructor initializes the users list with an admin user.
+     */
+    public UserManagement() {
         this.users = new ArrayList<>();
         // Create the initial admin user
         User admin = new User("admin", "java", Role.ADMIN);
         users.add(admin);
     }
-      public UserManagement(DB_IO dbIO) {
+    
+    /**
+     * Constructs a UserManagement object with a provided DB_IO object.
+     * 
+     * @param dbIO The DB_IO object for interacting with the database.
+     */
+    public UserManagement(DB_IO dbIO) {
         this.dbIO = dbIO;
     }
       
-      /**
+    /**
      * Allows updating or adding a user in the database.
      *
      * @param user          The User object containing user information.
      * @param plainPassword Optional parameter if password is to be changed.
      * @param salt          Salt string for the password.
      * @return True if user was successfully updated or added, false otherwise.
+     * @throws SQLException If a database access error occurs.
      */
     public boolean updateUser(User user, String plainPassword, String salt) throws SQLException {
         // Check if the user already exists in the database
         boolean userExists = checkUserExists(user.getUsername());
      
-    String hashedPassword = null;
+        String hashedPassword = null;
         if (plainPassword != null) {
             hashedPassword = HashPassword.hashPassword(plainPassword, salt, 1000);
         }
@@ -107,6 +122,13 @@ public class UserManagement {
         }
     }
 
+    /**
+     * Checks if a user with the given username already exists in the database.
+     * 
+     * @param username The username to check.
+     * @return True if the user exists, false otherwise.
+     * @throws SQLException If a database access error occurs.
+     */
     private boolean checkUserExists(String username) throws SQLException {
         String query = "SELECT COUNT(*) FROM users WHERE username = ?";
         try (Connection conn = dbIO.getConnection();
@@ -121,6 +143,7 @@ public class UserManagement {
         }
         return false;
     }
+    
     /**
      * Method that allows to update the username of a user in the database.
      *
@@ -159,7 +182,7 @@ public class UserManagement {
      * @return True if the password was successfully updated, false otherwise.
      */
     public boolean updatePassword(String userID, String newPassword, String newSalt) {
-        // HashPassword the new password before storing it in the database
+        // Hash the new password before storing it in the database
         String hashedPassword = HashPassword.hashPassword(newPassword, newSalt, 1000);
 
         // SQL query to update password in the database
@@ -212,7 +235,4 @@ public class UserManagement {
             return false;
         }
     }
-    
-    
-}
 }
