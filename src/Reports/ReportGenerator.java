@@ -8,6 +8,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -175,6 +177,172 @@ public ReportGenerator(DB_IO dbIO) {
 
         return studentCourse.toString();
     }
+// Method to retrieve modules completed by a student with corresponding grades
+    private List<String> getCompletedModules(String studentId, Connection connection) throws SQLException {
+        List<String> completedModules = new ArrayList<>();
+        String completedModulesQuery = "SELECT Modules.module_name, Grades.grade_score FROM Modules " +
+                                        "INNER JOIN Grades ON Modules.module_id = Grades.module_id " +
+                                        "WHERE student_id = ?";
+        try (PreparedStatement completedModulesStatement = connection.prepareStatement(completedModulesQuery)) {
+            completedModulesStatement.setString(1, studentId);
+            try (ResultSet completedModulesResult = completedModulesStatement.executeQuery()) {
+                while (completedModulesResult.next()) {
+                    String moduleName = completedModulesResult.getString("module_name");
+                    int gradeScore = completedModulesResult.getInt("grade_score");
+                    completedModules.add(moduleName + " (Grade: " + gradeScore + ")");
+                }
+            }
+        }
+        return completedModules;
+    }
 
+    // Method toReportGe retrieve modules the student needs to repeat
+    private List<String> getModulesToRepeat(String studentId, Connection connection) throws SQLException {
+        List<String> modulesToRepeat = new ArrayList<>();
+        String modulesToRepeatQuery = "SELECT module_name FROM Modules " +
+                                       "WHERE module_id IN (SELECT module_id FROM Module_Enrollments WHERE student_id = ? " +
+                                       "GROUP BY module_id HAVING MAX(grade_id) < (SELECT MAX(grade_id) FROM Grades WHERE student_id = ?))";
+        try (PreparedStatement modulesToRepeatStatement = connection.prepareStatement(modulesToRepeatQuery)) {
+            modulesToRepeatStatement.setString(1, studentId);
+            modulesToRepeatStatement.setString(2, studentId);
+            try (ResultSet modulesToRepeatResult = modulesToRepeatStatement.executeQuery()) {
+                while (modulesToRepeatResult.next()) {
+                    modulesToRepeat.add(modulesToRepeatResult.getString("module_name"));
+                }
+            }
+        }
+        return modulesToRepeat;
+    }
+
+// Generate Lecturer Report method
+    public String generateLecturerReport(int lecturerId) {
+        StringBuilder report = new StringBuilder();
+
+        try (Connection connection = dbIO.getConnection()) {
+            // Query to retrieve lecturer information
+            String lecturerQuery = "SELECT lecturer_name, lecturer_surname, lecturer_role FROM Lecturers WHERE lecturer_id = ?";
+            try (PreparedStatement lecturerStatement = connection.prepareStatement(lecturerQuery)) {
+                lecturerStatement.setInt(1, lecturerId);
+                try (ResultSet lecturerResult = lecturerStatement.executeQuery()) {
+                    if (lecturerResult.next()) {
+                        // Extract lecturer details
+                        String lecturerName = lecturerResult.getString("lecturer_name");
+                        String lecturerSurname = lecturerResult.getString("lecturer_surname");
+                        String lecturerRole = lecturerResult.getString("lecturer_role");
+
+                        // Append lecturer information to the report
+                        report.append("Lecturer Name: ").append(lecturerName).append("\n");
+                        report.append("Lecturer Surname: ").append(lecturerSurname).append("\n");
+                        report.append("Lecturer Role: ").append(lecturerRole).append("\n\n");
+
+                        // Retrieve modules taught by the lecturer this semester
+                        List<String> modulesTaught = getModulesTaught(lecturerId, connection);
+                        report.append("Modules Taught:\n");
+                        for (String moduleName : modulesTaught) {
+                            report.append("- ").append(moduleName).append("\n");
+                        }
+                        report.append("\n");
+
+                        // Retrieve number of students taking the modules taught by the lecturer
+                        int numberOfStudents = getNumberOfStudents(lecturerId, connection);
+                        report.append("Number of Students: ").append(numberOfStudents).append("\n\n");
+
+                        // Retrieve types of modules the lecturer can teach
+                        List<String> moduleTypes = getModuleTypes(lecturerId, connection);
+                        report.append("Types of Modules the Lecturer can Teach:\n");
+                        for (String moduleType : moduleTypes) {
+                            report.append("- ").append(moduleType).append("\n");
+                        }
+                    } else {
+                        report.append("No lecturer found with ID: ").append(lecturerId).append("\n");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Handle SQL exceptions
+        }
+
+        return report.toString();
+    }
+
+    // Method to retrieve modules taught by the lecturer this semester
+    private List<String> getModulesTaught(int lecturerId, Connection connection) throws SQLException {
+        List<String> modulesTaught = new ArrayList<>();
+        String moduleQuery = "SELECT module_name FROM Modules WHERE lecturer_id = ?";
+        try (PreparedStatement moduleStatement = connection.prepareStatement(moduleQuery)) {
+            moduleStatement.setInt(1, lecturerId);
+            try (ResultSet moduleResult = moduleStatement.executeQuery()) {
+                while (moduleResult.next()) {
+                    modulesTaught.add(moduleResult.getString("module_name"));
+                }
+            }
+        }
+        return modulesTaught;
+    }
+
+    // Method to retrieve number of students taking the modules taught by the lecturer
+    private int getNumberOfStudents(int lecturerId, Connection connection) throws SQLException {
+        int numberOfStudents = 0;
+        String studentCountQuery = "SELECT COUNT(DISTINCT student_id) AS num_students FROM Module_Enrollments WHERE module_id IN (SELECT module_id FROM Modules WHERE lecturer_id = ?)";
+        try (PreparedStatement studentCountStatement = connection.prepareStatement(studentCountQuery)) {
+            studentCountStatement.setInt(1, lecturerId);
+            try (ResultSet studentCountResult = studentCountStatement.executeQuery()) {
+                if (studentCountResult.next()) {
+                    numberOfStudents = studentCountResult.getInt("num_students");
+                }
+            }
+        }
+        return numberOfStudents;
+    }
+
+    // Method to retrieve types of modules the lecturer can teach
+    private List<String> getModuleTypes(int lecturerId, Connection connection) throws SQLException {
+        List<String> moduleTypes = new ArrayList<>();
+        String moduleTypeQuery = "SELECT DISTINCT module_type FROM Modules WHERE lecturer_id = ?";
+        try (PreparedStatement moduleTypeStatement = connection.prepareStatement(moduleTypeQuery)) {
+            moduleTypeStatement.setInt(1, lecturerId);
+            try (ResultSet moduleTypeResult = moduleTypeStatement.executeQuery()) {
+                while (moduleTypeResult.next()) {
+                    moduleTypes.add(moduleTypeResult.getString("module_type"));
+                }
+            }
+        }
+        return moduleTypes;
+    }
+    
+    // Output Student Report
+    /**
+     * Outputs a student report based on the provided student ID and report format.
+     * @param studentId The ID of the student for whom the report is generated.
+     * @param reportFormat The format of the report (CSV, TEXT, CONSOLE).
+     */
+    public void outputStudentReport(String studentId, ReportFormat reportFormat) {
+        // Check if reportGenerator is not null before using it
+        if (reportGenerator != null) {
+            reportGenerator.outputStudentReport(studentId, reportFormat);
+        } else {
+            System.out.println("Error: Report generator is not initialized.");
+        }
+    }
+
+    
+    /** Output lecturer Report
+
+     * @param lecturerId The ID of the lecturer for whom the report is generated.
+     * @param reportFormat The format of the report (CSV, TEXT, CONSOLE).
+     */
+    public void outputLecturerReport(String lecturerId, ReportFormat reportFormat) {
+        reportGenerator.outputLecturerReport(lecturerId, reportFormat);
+    }
+
+/**
+     * Output lecturer Report.
+     * @param courseId The ID of the course for which the report is generated.
+     * @param reportFormat The format of the report (CSV, TEXT, CONSOLE).
+     */
+    public void outputCourseReport(String courseId, ReportFormat reportFormat) {
+        reportGenerator.outputCourseReport(courseId, reportFormat);
+    }
+    
     
 }
