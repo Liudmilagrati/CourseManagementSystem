@@ -184,5 +184,35 @@ public class UserManagement {
         }
     }
     
+    /**
+     * Method that allows to update the role of a user in the database.
+     *
+     * @param userID The ID of the user whose role to update.
+     * @param newRole The new role to set.
+     * @return True if the role was successfully updated, false otherwise.
+     */
+    public boolean updateUserRole(String userID, Role newRole) {
+        // SQL query to update role in the database
+        String updateRoleQuery = "UPDATE users SET role = ? WHERE user_id = ?";
+
+        try (Connection conn = dbIO.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(updateRoleQuery)) {
+
+            // Set parameters for the prepared statement
+            stmt.setString(1, newRole.name());
+            stmt.setString(2, userID);
+
+            // Execute the update query
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            // Print the error code and return false in case of an exception
+            System.out.println("Error Code: " + e.getErrorCode());
+            return false;
+        }
+    }
     
+    
+}
 }
