@@ -4,6 +4,8 @@
  */
 package UserFunctionalities;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,5 +40,43 @@ public class UserManagement {
         // Check if the user already exists in the database
         boolean userExists = checkUserExists(user.getUsername());
      
+    String hashedPassword = null;
+        if (plainPassword != null) {
+            hashedPassword = HashPassword.hashPassword(plainPassword, salt, 1000);
+        }
+
+        try (Connection conn = dbIO.getConnection()) {
+            if (userExists) {
+                // If user exists, update the user information in the database
+                String updateUserQuery = "UPDATE users SET password = ?, role = ?, lecturer_id = ?, salt = ? WHERE username = ?";
+                try (PreparedStatement stmt = conn.prepareStatement(updateUserQuery)) {
+                    stmt.setString(1, hashedPassword); // Update password if provided
+                    stmt.setString(2, user.getRole().name());
+                    stmt.setString(3, user.getRole() == Role.LECTURER ? user.getLecturerId() : null); // Set lecturer_id only if role is LECTURER
+                    stmt.setString(4, salt);
+                    stmt.setString(5, user.getUsername());
+                    int rowsAffected = stmt.executeUpdate();
+                    return rowsAffected > 0;
+                }
+            } else {
+                // If user doesn't exist, add the user to the database
+                String addUserQuery = "INSERT INTO users (user_id, username, password, role, lecturer_id, salt) VALUES (?, ?, ?, ?, ?, ?)";
+                try (PreparedStatement stmt = conn.prepareStatement(addUserQuery)) {
+                    stmt.setString(1, user.getUserID());
+                    stmt.setString(2, user.getUsername());
+                    stmt.setString(3, hashedPassword);
+                    stmt.setString(4, user.getRole().name());
+                    stmt.setString(5, user.getRole() == Role.LECTURER ? user.getLecturerId() : null); // Set lecturer_id only if role is LECTURER
+                    stmt.setString(6, salt);
+                    int rowsAffected = stmt.executeUpdate();
+                    return rowsAffected > 0;
+                }
+            }
+        } catch (SQLException e) {
+            // Print the error code and return false in case of an exception
+            System.out.println("Error Code: " + e.getErrorCode());
+            return false;
+        }
+    }
     
 }
