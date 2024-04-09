@@ -5,18 +5,19 @@
 package UserFunctionalities;
 
 /**
- *
- * @Liudmila Grati 
+ * Represents a User in the system.
+ * Each user has a unique identifier, username, role, lecturer ID, and salt for password hashing.
+ * @author Liudmila Grati
  */
 public class User {
-  // Intanciate Private Fields
-    private String username;
-    private String password;
-    private String userID;
-    private String lecturerId;
-    private Role role;
-    private String salt; 
-    
+    // Private Fields
+    private String username; // Username of the user
+    private String password; // Password of the user (not stored directly for security reasons)
+    private String userID; // Unique identifier of the user
+    private String lecturerId; // Lecturer ID associated with the user (if applicable)
+    private Role role; // Role of the user (e.g., student, lecturer)
+    private String salt; // Salt used for password hashing
+
     /**
      * Constructs a user with the given userID, username, and role.
      *
@@ -29,7 +30,8 @@ public class User {
         this.username = username;
         this.role = role;
     }
-     /**
+
+    /**
      * Constructs a user with the given userID, username, role, lecturerId, and salt.
      *
      * @param userID     The unique identifier of the user.
@@ -45,7 +47,8 @@ public class User {
         this.lecturerId = lecturerId;
         this.salt = salt;
     }
-// Getters and Setters
+
+    // Getters and Setters
 
     /**
      * Gets the salt used for password hashing.
@@ -118,7 +121,4 @@ public class User {
     public void setRole(Role role) {
         this.role = role;
     }
-}
-    
-    
 }
