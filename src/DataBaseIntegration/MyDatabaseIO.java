@@ -18,3 +18,8 @@ public class MyDatabaseIO implements DB_IO {
     private String url;
     private String username;
     private String password;
+
+// Default constructor with database connection details
+    public MyDatabaseIO() {
+        this("jdbc:mysql://localhost/cms", "pooa2024", "pooa2024");
+    }
