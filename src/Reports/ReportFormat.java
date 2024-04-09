@@ -5,11 +5,14 @@
 package Reports;
 
 /**
- *
- * @Liudmila Grati 
+ * Enum representing different formats for generating reports.
+ * Three formats are defined: TXT, CSV, and CONSOLE.
+ * Each format corresponds to a specific way of generating and displaying reports.
+ * 
+ * @author Liudmila Grati
  */
 public enum ReportFormat {
-    TXT,
-    CSV,
-    CONSOLE
+    TXT,        // Represents a text format for generating reports
+    CSV,        // Represents a comma-separated values format for generating reports
+    CONSOLE     // Represents a console output format for generating reports
 }
