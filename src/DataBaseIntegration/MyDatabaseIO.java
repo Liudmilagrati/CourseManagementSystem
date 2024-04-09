@@ -41,4 +41,12 @@ public class MyDatabaseIO implements DB_IO {
         // Return the connection
         return conn;
     }
+    
+     // Method to close a database connection
+    @Override
+    public void closeConnection(Connection conn) throws SQLException {
+        if (conn != null) {
+            conn.close();
+        }
+    }
 }
