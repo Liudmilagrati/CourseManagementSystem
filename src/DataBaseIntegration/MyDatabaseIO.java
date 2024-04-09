@@ -4,10 +4,17 @@
  */
 package DataBaseIntegration;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
 /**
  *
- * @author user
+ * @Liudmila Grati 
  */
-public class MyDatabaseIO {
-    
-}
+public class MyDatabaseIO implements DB_IO {
+
+     // Instance variables to store database connection details
+    private String url;
+    private String username;
+    private String password;
