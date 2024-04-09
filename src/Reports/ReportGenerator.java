@@ -14,5 +14,16 @@ public class ReportGenerator {
     private final ReportExporter reportExporter; // Object for exporting reports
     private ReportGenerator reportGenerator;
 
+    /**
+     * Constructor for ReportGenerator class.
+     * @param dbIO Database IO object for database operations
+     */
     
+public ReportGenerator(DB_IO dbIO) {
+    // Assigning the provided DB_IO object to the instance variable dbIO
+        this.dbIO = dbIO;
+        // Initializing an instance of ReportExporter class
+        this.reportExporter = new ReportExporter(); 
+    }
+
 }
